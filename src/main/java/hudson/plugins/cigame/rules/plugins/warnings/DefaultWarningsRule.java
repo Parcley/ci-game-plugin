@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import hudson.maven.MavenBuild;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.plugins.cigame.model.AggregatableRule;
 import hudson.plugins.cigame.model.RuleResult;
@@ -46,8 +46,8 @@ public class DefaultWarningsRule implements AggregatableRule<Integer> {
 	}
 
 	@Override
-	public RuleResult<Integer> evaluate(AbstractBuild<?, ?> previousBuild,
-			AbstractBuild<?, ?> build) {
+	public RuleResult<Integer> evaluate(Run<?, ?> previousBuild,
+			Run<?, ?> build) {
 		if (build != null && build.getResult() != null && build.getResult().isWorseOrEqualTo(Result.FAILURE)) {
     		return RuleResult.EMPTY_INT_RESULT;
     	}
@@ -90,7 +90,7 @@ public class DefaultWarningsRule implements AggregatableRule<Integer> {
 	}
 
 
-	public RuleResult<Integer> evaluate(AbstractBuild<?, ?> build) {
+	public RuleResult<Integer> evaluate(Run<?, ?> build) {
 		throw new UnsupportedOperationException();
 //        if (new ResultSequenceValidator(Result.UNSTABLE, 2).isValid(build)) {
 //            List<List<WarningsResultAction>> sequence = new ActionSequenceRetriever<WarningsResultAction>(WarningsResultAction.class, 2).getSequence(build);

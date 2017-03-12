@@ -7,7 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hudson.maven.MavenBuild;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.plugins.analysis.core.HealthDescriptor;
 import hudson.plugins.analysis.util.model.Priority;
@@ -24,11 +24,11 @@ public class DefaultOpenTasksRuleTest {
     
     @Test
     public void assertFailedBuildsIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class); 
+        Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.FAILURE);
         addOpenTasks(build, 3);
         
-        AbstractBuild previousBuild = mock(AbstractBuild.class); 
+        Run previousBuild = mock(Run.class); 
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         addOpenTasks(previousBuild, 5);
 
@@ -40,7 +40,7 @@ public class DefaultOpenTasksRuleTest {
     
     @Test
     public void assertNoPreviousBuildIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class); 
+        Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.FAILURE);
         when(build.getPreviousBuild()).thenReturn(null);
         addOpenTasks(build, 3);
@@ -53,8 +53,8 @@ public class DefaultOpenTasksRuleTest {
     
     @Test
     public void assertIfPreviousBuildFailedResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.FAILURE);
@@ -77,8 +77,8 @@ public class DefaultOpenTasksRuleTest {
     
     @Test
     public void assertIfPreviousBuildHasErrorsResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
@@ -100,7 +100,7 @@ public class DefaultOpenTasksRuleTest {
     
     @Test
     public void assertNewMavenModuleGivesNegativePoints() {
-    	AbstractBuild build = mock(MavenBuild.class); 
+    	Run build = mock(MavenBuild.class); 
         when(build.getResult()).thenReturn(Result.SUCCESS);
         addOpenTasks(build, 3);
         
@@ -111,7 +111,7 @@ public class DefaultOpenTasksRuleTest {
     
     @Test
     public void assertRemovedMavenModuleGivesPositivePoints() {
-    	AbstractBuild previousBuild = mock(MavenBuild.class); 
+    	Run previousBuild = mock(MavenBuild.class); 
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         addOpenTasks(previousBuild, 3);
         
@@ -120,7 +120,7 @@ public class DefaultOpenTasksRuleTest {
         assertThat("Points should be 3", ruleResult.getPoints(), is(3d));
     }
     
-    private static void addOpenTasks(AbstractBuild build, int numberOfTasks) {
+    private static void addOpenTasks(Run build, int numberOfTasks) {
     	TasksResult result = mock(TasksResult.class);
         TasksResultAction action = new TasksResultAction(build, mock(HealthDescriptor.class), result);
         when(build.getActions(TasksResultAction.class)).thenReturn(Arrays.asList(action));

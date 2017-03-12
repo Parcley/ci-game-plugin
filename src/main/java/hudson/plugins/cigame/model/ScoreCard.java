@@ -3,8 +3,8 @@ package hudson.plugins.cigame.model;
 import hudson.maven.MavenBuild;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSetBuild;
-import hudson.model.BuildListener;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.cigame.util.BuildUtil;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class ScoreCard {
      * @param ruleset rule set to use for evaluation
      * @param listener 
      */
-    public void record(AbstractBuild<?, ?> build, RuleSet ruleset, BuildListener listener) {
+    public void record(Run<?, ?> build, RuleSet ruleset, TaskListener listener) {
         
         List<Score> scoresForBuild = new LinkedList<Score>();
         for (Rule rule : ruleset.getRules()) {
@@ -68,7 +68,7 @@ public class ScoreCard {
     }
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    RuleResult<?> evaluate(AbstractBuild<?, ?> build, Rule rule) {
+    RuleResult<?> evaluate(Run<?, ?> build, Rule rule) {
         if (rule instanceof AggregatableRule<?> && build instanceof MavenModuleSetBuild) {
             AggregatableRule aRule = (AggregatableRule<?>)rule;
             MavenModuleSetBuild mavenModuleSetBuild = (MavenModuleSetBuild)build;
@@ -78,13 +78,13 @@ public class ScoreCard {
             for (Map.Entry<MavenModule, MavenBuild> e : mavenModuleSetBuild.getModuleLastBuilds().entrySet()) {
             	MavenBuild moduleBuild = e.getValue();
                 if (moduleBuild != null) {
-                	AbstractBuild<?, ?> previousBuild = BuildUtil.getPreviousBuiltBuild(moduleBuild);
+                	Run<?, ?> previousBuild = BuildUtil.getPreviousBuiltBuild(moduleBuild);
                     results.add(aRule.evaluate(previousBuild, moduleBuild));
                 } else {
                 	// module was probably removed from multimodule
                 	if (mavenModuleSetBuild.getPreviousBuild() != null) {
                 		MavenModuleSetBuild prevBuild = mavenModuleSetBuild.getPreviousBuild();
-                		AbstractBuild<?, ?> prevModuleBuild = prevBuild.getModuleLastBuilds().get(e.getKey());
+                		Run<?, ?> prevModuleBuild = prevBuild.getModuleLastBuilds().get(e.getKey());
                 		if (prevModuleBuild.getResult() == null) {
                 			prevModuleBuild = BuildUtil.getPreviousBuiltBuild(prevModuleBuild);
                 		}
@@ -114,7 +114,7 @@ public class ScoreCard {
      * @param ruleBook rule book to use for evaluation
      * @param listener 
      */
-    public void record(AbstractBuild<?, ?> build, RuleBook ruleBook, BuildListener listener) {
+    public void record(Run<?, ?> build, RuleBook ruleBook, TaskListener listener) {
         if (scores == null) {
             scores = new LinkedList<Score>();
         }

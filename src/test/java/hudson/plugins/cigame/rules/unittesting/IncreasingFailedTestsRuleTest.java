@@ -6,7 +6,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import hudson.model.Result;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.cigame.GameDescriptor;
 import hudson.plugins.cigame.model.RuleResult;
 import hudson.tasks.test.AbstractTestResultAction;
@@ -62,10 +62,10 @@ public class IncreasingFailedTestsRuleTest {
         
         IncreasingFailedTestsRule rule = new IncreasingFailedTestsRule();
         
-        AbstractBuild<?, ?> previousBuild =
+        Run<?, ?> previousBuild =
         	MavenMultiModuleUnitTestsTest.mockBuild(Result.FAILURE,
         			1, 1, 0);
-        AbstractBuild<?, ?> build =
+        Run<?, ?> build =
         	MavenMultiModuleUnitTestsTest.mockBuild(Result.UNSTABLE,
         			2, 2, 0);
         
@@ -79,10 +79,10 @@ public class IncreasingFailedTestsRuleTest {
         
         IncreasingFailedTestsRule rule = new IncreasingFailedTestsRule();
         
-        AbstractBuild<?, ?> previousBuild =
+        Run<?, ?> previousBuild =
         	MavenMultiModuleUnitTestsTest.mockBuild(Result.UNSTABLE,
         			1, 1, 0);
-        AbstractBuild<?, ?> build =
+        Run<?, ?> build =
         	MavenMultiModuleUnitTestsTest.mockBuild(Result.FAILURE,
         			2, 2, 0);
         
@@ -92,8 +92,8 @@ public class IncreasingFailedTestsRuleTest {
 
     @Test
     public void assertIfPreviousBuildFailedResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.FAILURE);

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.plugins.analysis.core.HealthDescriptor;
 import hudson.plugins.analysis.util.model.Priority;
@@ -22,7 +22,7 @@ public class DefaultPmdRuleTest {
     
     @Test
     public void assertFailedBuildsIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class); 
+        Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.FAILURE);
 
         DefaultPmdRule rule = new DefaultPmdRule(Priority.HIGH, 100, -100);
@@ -33,7 +33,7 @@ public class DefaultPmdRuleTest {
     
     @Test
     public void assertNoPreviousBuildIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class); 
+        Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.FAILURE);
         when(build.getPreviousBuild()).thenReturn(null);
 
@@ -45,8 +45,8 @@ public class DefaultPmdRuleTest {
     
     @Test
     public void assertIfPreviousBuildFailedResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.FAILURE);
@@ -69,8 +69,8 @@ public class DefaultPmdRuleTest {
     
     @Test
     public void assertIfPreviousBuildHasErrorsResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);

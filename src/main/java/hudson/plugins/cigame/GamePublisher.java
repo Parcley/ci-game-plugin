@@ -1,5 +1,6 @@
 package hudson.plugins.cigame;
 
+import hudson.FilePath;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,15 +19,19 @@ import hudson.model.Cause;
 import hudson.model.TopLevelItem;
 import hudson.model.Run;
 import hudson.model.Hudson;
+import hudson.model.TaskListener;
+import hudson.plugins.cigame.util.ChangeSetAuthors;
 import hudson.plugins.cigame.model.RuleBook;
 import hudson.plugins.cigame.model.ScoreCard;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.Entry;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
+import java.util.Collection;
+import jenkins.tasks.SimpleBuildStep;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class GamePublisher extends Notifier {
+public class GamePublisher extends Notifier implements SimpleBuildStep {
 
     @DataBoundConstructor
     public GamePublisher() {
@@ -50,10 +55,16 @@ public class GamePublisher extends Notifier {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
             BuildListener listener) throws InterruptedException, IOException {
-
         perform(build, getDescriptor().getRuleBook(), getDescriptor().getNamesAreCaseSensitive(), listener);
         return true;
     }
+    
+    // implements SimpleBuildStep
+    @Override
+    public void perform(Run<?, ?> build, FilePath fp, Launcher lnchr, TaskListener tl) throws InterruptedException, IOException {
+        perform(build, getDescriptor().getRuleBook(), getDescriptor().getNamesAreCaseSensitive(), tl);
+    }
+
 
     /**
      * Calculates score from the build and rule book and adds a Game action to the build.
@@ -64,46 +75,41 @@ public class GamePublisher extends Notifier {
      * @return true, if any user scores were updated; false, otherwise
      * @throws IOException thrown if there was a problem setting a user property
      */
-    boolean perform(AbstractBuild<?, ?> build, RuleBook ruleBook, boolean usernameIsCasesensitive, BuildListener listener) throws IOException {
+    boolean perform(Run<?, ?> build, RuleBook ruleBook, boolean usernameIsCasesensitive, TaskListener listener) throws IOException {
         ScoreCard sc = new ScoreCard();
         sc.record(build, ruleBook, listener);
 
         ScoreCardAction action = new ScoreCardAction(sc, build);
         build.getActions().add(action);
         
-        List<AbstractBuild<?, ?>> accountableBuilds = new ArrayList<AbstractBuild<?,?>>();
+        List<Run<?, ?>> accountableBuilds = new ArrayList<Run<?,?>>();
         accountableBuilds.add(build);
 
-        AbstractBuild upstreamBuild = getBuildByUpstreamCause(build.getCauses(), listener);
+        Run upstreamBuild = getBuildByUpstreamCause(build.getCauses(), listener);
         if(upstreamBuild!= null) {
             accountableBuilds.add(upstreamBuild);
-            ChangeLogSet<? extends Entry> changeSet = upstreamBuild.getChangeSet();
+            Set<? extends User> users = ChangeSetAuthors.getChangeSetAuthors(upstreamBuild);
             if(listener != null ) listener.getLogger().append("[ci-game] UpStream Build ID: " + upstreamBuild.getId()+ "\n");
             if(listener != null ) listener.getLogger().append("[ci-game] UpStream Display Name: " + upstreamBuild.getFullDisplayName()+ "\n");
-            if(listener != null ) listener.getLogger().append("[ci-game] Is UpStream Change Set Empty: " + changeSet.isEmptySet() + "\n");
+            if(listener != null ) listener.getLogger().append("[ci-game] Does UpStream Build have contributors: " + users.isEmpty()+ "\n");
 
         }
         
         // also add all previous aborted builds:
-        AbstractBuild<?, ?> previousBuild = build.getPreviousBuild();
+        Run<?, ?> previousBuild = build.getPreviousBuild();
         while (previousBuild != null && previousBuild.getResult() == Result.ABORTED) {
         	accountableBuilds.add(previousBuild);
         	previousBuild = previousBuild.getPreviousBuild();
         }
         
         Set<User> players = new TreeSet<User>(usernameIsCasesensitive ? null : new UsernameCaseinsensitiveComparator());
-        for (AbstractBuild<?, ?> b : accountableBuilds) {
-        	ChangeLogSet<? extends Entry> changeSet = b.getChangeSet();
-        	if (changeSet != null) {
-	        	for (Entry e : changeSet) {
-	        		players.add(e.getAuthor());
-	        	}
-        	}
+        for (Run<?, ?> b : accountableBuilds) {
+            players.addAll(ChangeSetAuthors.getChangeSetAuthors(b));
         }
         
         return updateUserScores(players, sc.getTotalPoints(), accountableBuilds);
     }
-    private AbstractBuild getBuildByUpstreamCause(List<Cause> causes,BuildListener listener ){
+    private Run getBuildByUpstreamCause(List<Cause> causes,TaskListener listener ){
         for(Cause cause: (List<Cause>) causes){
             if(cause instanceof Cause.UpstreamCause) {
                 TopLevelItem upstreamProject = Hudson.getInstance().getItemByFullName(((Cause.UpstreamCause)cause).getUpstreamProject(), TopLevelItem.class);
@@ -111,9 +117,9 @@ public class GamePublisher extends Notifier {
                     int buildId = ((Cause.UpstreamCause)cause).getUpstreamBuild();
                     Run run = ((AbstractProject) upstreamProject).getBuildByNumber(buildId);
                     System.out.println();
-                    AbstractBuild upstreamRun = getBuildByUpstreamCause(run.getCauses(),listener);
+                    Run upstreamRun = getBuildByUpstreamCause(run.getCauses(),listener);
                     if(upstreamRun == null) {
-                        return (AbstractBuild) run;
+                        return (Run) run;
                     }else{
                         return upstreamRun;
                     }
@@ -133,7 +139,7 @@ public class GamePublisher extends Notifier {
      * @throws IOException thrown if the property could not be added to the user object.
      * @return true, if any user scores was updated; false, otherwise
      */
-    private boolean updateUserScores(Set<User> players, double score, List<AbstractBuild<?, ?>> accountableBuilds) throws IOException {
+    private boolean updateUserScores(Set<User> players, double score, List<Run<?, ?>> accountableBuilds) throws IOException {
         if (score != 0) {
             for (User user : players) {
                 UserScoreProperty property = user.getProperty(UserScoreProperty.class);

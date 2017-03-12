@@ -7,7 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hudson.maven.MavenBuild;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.plugins.analysis.core.HealthDescriptor;
 import hudson.plugins.cigame.model.RuleResult;
@@ -23,11 +23,11 @@ public class DefaultWarningsRuleTest {
 	
 	@Test
 	public void assertNewWarningsGiveNegativePoints() {
-		AbstractBuild build = mock(AbstractBuild.class); 
+		Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.SUCCESS);
         addWarnings(build, 3);
         
-        AbstractBuild previousBuild = mock(AbstractBuild.class); 
+        Run previousBuild = mock(Run.class); 
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         addWarnings(previousBuild, 1);
         
@@ -39,11 +39,11 @@ public class DefaultWarningsRuleTest {
 	
 	@Test
 	public void assertRemovedWarningsGivePositivePoints() {
-		AbstractBuild build = mock(AbstractBuild.class); 
+		Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.SUCCESS);
         addWarnings(build, 3);
         
-        AbstractBuild previousBuild = mock(AbstractBuild.class); 
+        Run previousBuild = mock(Run.class); 
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         addWarnings(previousBuild, 12);
         
@@ -55,11 +55,11 @@ public class DefaultWarningsRuleTest {
 	
     @Test
     public void assertFailedBuildsIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class); 
+        Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.FAILURE);
         addWarnings(build, 15);
         
-        AbstractBuild previousBuild = mock(AbstractBuild.class); 
+        Run previousBuild = mock(Run.class); 
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         addWarnings(previousBuild, 10);
 
@@ -71,7 +71,7 @@ public class DefaultWarningsRuleTest {
     
     @Test
     public void assertNoPreviousBuildIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class); 
+        Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(build.getPreviousBuild()).thenReturn(null);
         addWarnings(build, 7);
@@ -84,15 +84,15 @@ public class DefaultWarningsRuleTest {
     
     @Test
     public void assertIfPreviousBuildFailedResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.FAILURE);
         WarningsResult result = mock(WarningsResult.class);
         WarningsResult previosResult = mock(WarningsResult.class);
-        WarningsResultAction action = new WarningsResultAction(build, mock(HealthDescriptor.class), result);
-        WarningsResultAction previousAction = new WarningsResultAction(previousBuild,mock(HealthDescriptor.class), previosResult);
+        WarningsResultAction action = new WarningsResultAction(build, mock(HealthDescriptor.class), result, null);
+        WarningsResultAction previousAction = new WarningsResultAction(previousBuild,mock(HealthDescriptor.class), previosResult, null);
         when(build.getActions(WarningsResultAction.class)).thenReturn(Arrays.asList(action));
         when(previousBuild.getActions(WarningsResultAction.class)).thenReturn(Arrays.asList(previousAction));
         
@@ -106,16 +106,16 @@ public class DefaultWarningsRuleTest {
     
     @Test
     public void assertIfPreviousHasErrorsResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         WarningsResult result = mock(WarningsResult.class);
         WarningsResult previosResult = mock(WarningsResult.class);
         when(previosResult.hasError()).thenReturn(true);
-        WarningsResultAction action = new WarningsResultAction(build, mock(HealthDescriptor.class), result);
-        WarningsResultAction previousAction = new WarningsResultAction(previousBuild,mock(HealthDescriptor.class), previosResult);
+        WarningsResultAction action = new WarningsResultAction(build, mock(HealthDescriptor.class), result, null);
+        WarningsResultAction previousAction = new WarningsResultAction(previousBuild,mock(HealthDescriptor.class), previosResult, null);
         when(build.getActions(WarningsResultAction.class)).thenReturn(Arrays.asList(action));
         when(previousBuild.getActions(WarningsResultAction.class)).thenReturn(Arrays.asList(previousAction));
         
@@ -129,7 +129,7 @@ public class DefaultWarningsRuleTest {
     
     @Test
     public void assertNewMavenModuleGivesNegativePoints() {
-    	AbstractBuild build = mock(MavenBuild.class); 
+    	Run build = mock(MavenBuild.class); 
         when(build.getResult()).thenReturn(Result.SUCCESS);
         addWarnings(build, 3);
         
@@ -140,7 +140,7 @@ public class DefaultWarningsRuleTest {
     
     @Test
     public void assertRemovedMavenModuleGivesPositivePoints() {
-    	AbstractBuild previousBuild = mock(MavenBuild.class); 
+    	Run previousBuild = mock(MavenBuild.class); 
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         addWarnings(previousBuild, 3);
         
@@ -149,9 +149,9 @@ public class DefaultWarningsRuleTest {
         assertThat("Points should be 3", ruleResult.getPoints(), is(3d));
     }
     
-    private static void addWarnings(AbstractBuild build, int numberOfWarnings) {
+    private static void addWarnings(Run build, int numberOfWarnings) {
     	WarningsResult result = mock(WarningsResult.class);
-        WarningsResultAction action = new WarningsResultAction(build, mock(HealthDescriptor.class), result);
+        WarningsResultAction action = new WarningsResultAction(build, mock(HealthDescriptor.class), result, null);
         when(build.getActions(WarningsResultAction.class)).thenReturn(Arrays.asList(action));
         
         when(result.getNumberOfAnnotations()).thenReturn(numberOfWarnings);

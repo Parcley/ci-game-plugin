@@ -5,7 +5,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import hudson.maven.MavenBuild;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.plugins.analysis.core.HealthDescriptor;
 import hudson.plugins.analysis.util.model.Priority;
@@ -24,11 +24,11 @@ public class FixedFindBugsWarningsRuleTest {
     
     @Test
     public void assertFailedBuildsIsWorthZeroPoints() {
-        AbstractBuild<?, ?> build = mock(AbstractBuild.class);
+        Run<?, ?> build = mock(Run.class);
         when(build.getResult()).thenReturn(Result.FAILURE);
         FindBugsWarningsRuleTestUtils.addFindBugsWarnings(build, 0);
         
-        AbstractBuild<?, ?> prevBuild = mock(AbstractBuild.class);
+        Run<?, ?> prevBuild = mock(Run.class);
         when(prevBuild.getResult()).thenReturn(Result.SUCCESS);
         FindBugsWarningsRuleTestUtils.addFindBugsWarnings(prevBuild, 7);
 
@@ -40,11 +40,11 @@ public class FixedFindBugsWarningsRuleTest {
     
     @Test
     public void assertFailedMavenBuildsIsWorthZeroPoints() {
-        AbstractBuild<?, ?> build = mock(AbstractBuild.class);
+        Run<?, ?> build = mock(Run.class);
         when(build.getResult()).thenReturn(Result.FAILURE);
         FindBugsWarningsRuleTestUtils.addMavenFindBugsWarnings(build, 0);
         
-        AbstractBuild<?, ?> prevBuild = mock(AbstractBuild.class);
+        Run<?, ?> prevBuild = mock(Run.class);
         when(prevBuild.getResult()).thenReturn(Result.SUCCESS);
         FindBugsWarningsRuleTestUtils.addMavenFindBugsWarnings(prevBuild, 7);
 
@@ -56,7 +56,7 @@ public class FixedFindBugsWarningsRuleTest {
     
     @Test
     public void assertNoPreviousBuildIsWorthZeroPoints() { 
-        AbstractBuild<?, ?> build = mock(AbstractBuild.class);
+        Run<?, ?> build = mock(Run.class);
         when(build.getResult()).thenReturn(Result.FAILURE);
         when(build.getPreviousBuild()).thenReturn(null);
         FindBugsWarningsRuleTestUtils.addFindBugsWarnings(build, 0);
@@ -69,7 +69,7 @@ public class FixedFindBugsWarningsRuleTest {
     
     @Test
     public void assertNoPreviousMavenBuildIsWorthZeroPoints() { 
-        AbstractBuild<?, ?> build = mock(AbstractBuild.class);
+        Run<?, ?> build = mock(Run.class);
         when(build.getResult()).thenReturn(Result.FAILURE);
         when(build.getPreviousBuild()).thenReturn(null);
         FindBugsWarningsRuleTestUtils.addMavenFindBugsWarnings(build, 0);
@@ -83,8 +83,8 @@ public class FixedFindBugsWarningsRuleTest {
     @SuppressWarnings("rawtypes")
     @Test
     public void assertIfPreviousBuildFailedResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.FAILURE);
@@ -108,8 +108,8 @@ public class FixedFindBugsWarningsRuleTest {
     @SuppressWarnings("rawtypes")
     @Test
     public void assertIfPreviousMavenBuildFailedResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.FAILURE);
@@ -133,8 +133,8 @@ public class FixedFindBugsWarningsRuleTest {
     @SuppressWarnings("rawtypes")
     @Test
     public void assertIfPreviousHasErrorsFailedResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
@@ -158,7 +158,7 @@ public class FixedFindBugsWarningsRuleTest {
     
     @Test
     public void assertRemovedMavenModuleCountsAsFixed() {
-        AbstractBuild<?, ?> previousBuild = mock(MavenBuild.class);
+        Run<?, ?> previousBuild = mock(MavenBuild.class);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         FindBugsWarningsRuleTestUtils.addMavenFindBugsWarnings(previousBuild, 6);
         

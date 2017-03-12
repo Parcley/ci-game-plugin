@@ -1,6 +1,6 @@
 package hudson.plugins.cigame.rules.plugins.pmd;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.plugins.analysis.util.model.Priority;
 import hudson.plugins.cigame.model.Rule;
@@ -23,7 +23,7 @@ public class DefaultPmdRule implements Rule {
         this.pointsForRemovingAnAnnotation = pointsForRemovingAnAnnotation;
     }
 
-    public RuleResult evaluate(AbstractBuild<?, ?> build) {
+    public RuleResult evaluate(Run<?, ?> build) {
         
         if (new ResultSequenceValidator(Result.UNSTABLE, 2).isValid(build)) {
             List<List<PmdResultAction>> sequence = new ActionSequenceRetriever<PmdResultAction>(PmdResultAction.class, 2).getSequence(build);

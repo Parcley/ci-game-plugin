@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import hudson.model.Run;
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
 import hudson.model.User;
@@ -28,7 +29,7 @@ public class GamePublisherTest {
 
     @Test
     public void assertScoreCardActionIsAddedToBuild() throws Exception {
-        AbstractBuild build = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
         List<Action> actions = mock(List.class);
         when(build.getActions()).thenReturn(actions);
 
@@ -36,7 +37,10 @@ public class GamePublisherTest {
         
         verify(build).getActions();
         verify(actions).add(Mockito.isA(ScoreCardAction.class));
-        verify(build).getChangeSet();
+        if(build instanceof AbstractBuild){
+            AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>)build;
+            verify(abstractBuild).getChangeSet();
+        }
         verify(build).getPreviousBuild();
         verify(build).getCauses();
         verifyNoMoreInteractions(build);
@@ -109,7 +113,10 @@ public class GamePublisherTest {
             changesetList.add(createEntry(user));
         }
         when(changeset.iterator()).thenReturn(changesetList.iterator());
-        when(build.getChangeSet()).thenReturn(changeset);
+        if(build instanceof AbstractBuild){
+            AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>)build;
+            when(abstractBuild.getChangeSet()).thenReturn(changeset);
+        }
     }
     
     private User createUser(UserScoreProperty property) {
@@ -139,7 +146,7 @@ public class GamePublisherTest {
             this.ruleResult = ruleResult;
         }
 
-        public RuleResult evaluate(AbstractBuild<?, ?> build) {
+        public RuleResult evaluate(Run<?, ?> build) {
             return ruleResult;
         }
 

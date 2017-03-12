@@ -1,12 +1,13 @@
 package hudson.plugins.cigame;
 
+import hudson.model.AbstractBuild;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.User;
 import hudson.plugins.cigame.model.ScoreCard;
 import hudson.scm.ChangeLogSet;
@@ -21,9 +22,12 @@ public class ScoreCardActionTest {
     @Bug(3990)
     @Test 
     public void assertCaseDifferentUserIsReportedAsOneUser() {
-        AbstractBuild<?, ?> build = mock(AbstractBuild.class);        
+        Run<?, ?> build = mock(Run.class);        
         ChangeLogSet changeset = mock(ChangeLogSet.class);
-        when(build.getChangeSet()).thenReturn(changeset);
+        if(build instanceof AbstractBuild){
+            AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>)build;
+            when(abstractBuild.getChangeSet()).thenReturn(changeset);
+        }
         Iterator<Entry> iterator = Arrays.asList(new Entry[]{mockEntry("Name", "OneName"), mockEntry("name", "TwoName")}).iterator();
         when(changeset.iterator()).thenReturn(iterator);
         assertThat(new ScoreCardAction(new ScoreCard(), build).getParticipants(false).size(), is(1));
@@ -32,9 +36,12 @@ public class ScoreCardActionTest {
     @Bug(3990)
     @Test 
     public void assertCaseDifferentUserIsNotReportedAsOneUser() {
-        AbstractBuild<?, ?> build = mock(AbstractBuild.class);        
+        Run<?, ?> build = mock(Run.class);        
         ChangeLogSet changeset = mock(ChangeLogSet.class);
-        when(build.getChangeSet()).thenReturn(changeset);
+        if(build instanceof AbstractBuild){
+            AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>)build;
+            when(abstractBuild.getChangeSet()).thenReturn(changeset);
+        }
         Iterator<Entry> iterator = Arrays.asList(new Entry[]{mockEntry("Name", "OneName"), mockEntry("name", "TwoName")}).iterator();
         when(changeset.iterator()).thenReturn(iterator);
         assertThat(new ScoreCardAction(new ScoreCard(), build).getParticipants(true).size(), is(2));
@@ -42,11 +49,17 @@ public class ScoreCardActionTest {
     
     @Test 
     public void assertParticipantListIsSorted() {
-        AbstractBuild<?, ?> build = mock(AbstractBuild.class);        
+        Run<?, ?> build = mock(Run.class);        
         ChangeLogSet changeset = mock(ChangeLogSet.class);
-        when(build.getChangeSet()).thenReturn(changeset);
+        if(build instanceof AbstractBuild){
+            AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>)build;
+            when(abstractBuild.getChangeSet()).thenReturn(changeset);
+        }
         Iterator<Entry> iterator = Arrays.asList(new Entry[]{mockEntry("one", "David"), mockEntry("two", "Barney"), mockEntry("three", "charlie")}).iterator();
-        when(changeset.iterator()).thenReturn(iterator);
+        if(build instanceof AbstractBuild){
+            AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>)build;
+            when(abstractBuild.getChangeSet()).thenReturn(changeset);
+        }
         Iterator<User> participantsIterator = new ScoreCardAction(new ScoreCard(), build).getParticipants(true).iterator();
         assertThat(participantsIterator.next().getDisplayName(), is("Barney"));
         assertThat(participantsIterator.next().getDisplayName(), is("charlie"));

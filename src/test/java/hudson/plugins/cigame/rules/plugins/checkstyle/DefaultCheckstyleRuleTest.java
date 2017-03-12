@@ -6,7 +6,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import hudson.maven.MavenBuild;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.plugins.analysis.core.HealthDescriptor;
 import hudson.plugins.checkstyle.CheckStyleResult;
@@ -24,11 +24,11 @@ public class DefaultCheckstyleRuleTest {
 	
 	@Test
 	public void assertNewWarningsGiveNegativePoints() {
-		AbstractBuild build = mock(AbstractBuild.class); 
+		Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.SUCCESS);
         addCheckstyleWarnings(build, 3);
         
-        AbstractBuild previousBuild = mock(AbstractBuild.class); 
+        Run previousBuild = mock(Run.class); 
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         addCheckstyleWarnings(previousBuild, 1);
         
@@ -40,11 +40,11 @@ public class DefaultCheckstyleRuleTest {
 	
 	@Test
 	public void assertRemovedWarningsGivePositivePoints() {
-		AbstractBuild build = mock(AbstractBuild.class); 
+		Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.SUCCESS);
         addCheckstyleWarnings(build, 3);
         
-        AbstractBuild previousBuild = mock(AbstractBuild.class); 
+        Run previousBuild = mock(Run.class); 
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         addCheckstyleWarnings(previousBuild, 12);
         
@@ -56,11 +56,11 @@ public class DefaultCheckstyleRuleTest {
     
     @Test
     public void assertFailedBuildsIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class); 
+        Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.FAILURE);
         addCheckstyleWarnings(build, 1);
         
-        AbstractBuild previousBuild = mock(AbstractBuild.class); 
+        Run previousBuild = mock(Run.class); 
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         addCheckstyleWarnings(previousBuild, 0);
 
@@ -72,7 +72,7 @@ public class DefaultCheckstyleRuleTest {
     
     @Test
     public void assertNoPreviousBuildIsWorthZeroPoints() {        
-        AbstractBuild build = mock(AbstractBuild.class); 
+        Run build = mock(Run.class); 
         when(build.getResult()).thenReturn(Result.FAILURE);
         when(build.getPreviousBuild()).thenReturn(null);
         addCheckstyleWarnings(build, 3);
@@ -85,8 +85,8 @@ public class DefaultCheckstyleRuleTest {
     
     @Test
     public void assertIfPreviousBuildFailedResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.FAILURE);
@@ -109,8 +109,8 @@ public class DefaultCheckstyleRuleTest {
     
     @Test
     public void assertIfPreviousBuildHasErrorsIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
@@ -133,7 +133,7 @@ public class DefaultCheckstyleRuleTest {
     
     @Test
     public void assertNewMavenModuleGivesNegativePoints() {
-    	AbstractBuild build = mock(MavenBuild.class); 
+    	Run build = mock(MavenBuild.class); 
         when(build.getResult()).thenReturn(Result.SUCCESS);
         addCheckstyleWarnings(build, 3);
         
@@ -144,7 +144,7 @@ public class DefaultCheckstyleRuleTest {
     
     @Test
     public void assertRemovedMavenModuleGivesPositivePoints() {
-    	AbstractBuild previousBuild = mock(MavenBuild.class); 
+    	Run previousBuild = mock(MavenBuild.class); 
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
         addCheckstyleWarnings(previousBuild, 3);
         
@@ -153,7 +153,7 @@ public class DefaultCheckstyleRuleTest {
         assertThat("Points should be 3", ruleResult.getPoints(), is(3d));
     }
     
-    private static void addCheckstyleWarnings(AbstractBuild<?, ?> build, int numberOfWarnings) {
+    private static void addCheckstyleWarnings(Run<?, ?> build, int numberOfWarnings) {
     	CheckStyleResult result = mock(CheckStyleResult.class);
         CheckStyleResultAction action = new CheckStyleResultAction(build, mock(HealthDescriptor.class), result);
         when(build.getActions(CheckStyleResultAction.class)).thenReturn(Arrays.asList(action));

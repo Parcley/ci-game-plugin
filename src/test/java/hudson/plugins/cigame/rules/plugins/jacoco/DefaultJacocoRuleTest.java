@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import hudson.model.BuildListener;
 import hudson.model.Result;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.cigame.model.RuleResult;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.plugins.jacoco.model.Coverage;
@@ -31,9 +31,9 @@ import org.mockito.Mock;
 public class DefaultJacocoRuleTest {
 
     @Mock
-    private AbstractBuild<?, ?> build;
+    private Run<?, ?> build;
     @Mock
-    private AbstractBuild<?, ?> previous;
+    private Run<?, ?> previous;
 
     private final DefaultJacocoRule rule = new DefaultJacocoRule(-2, 3);
 
@@ -267,10 +267,10 @@ public class DefaultJacocoRuleTest {
         assertEquals(expected, ruleResult.getPoints(), 0.1d);
     }
 
-    private static void addCoverage(AbstractBuild<?, ?> build, int missed, int covered) {
+    private static void addCoverage(Run<?, ?> build, int missed, int covered) {
         final Map<Type, Coverage> ratios = Collections.emptyMap();
         final JacocoBuildAction action =
-            new JacocoBuildAction(build, null, ratios, null, mock(BuildListener.class), null, null);
+            new JacocoBuildAction(ratios, null, mock(BuildListener.class), null, null);
 
         action.getLineCoverage().accumulate(missed, covered);
 

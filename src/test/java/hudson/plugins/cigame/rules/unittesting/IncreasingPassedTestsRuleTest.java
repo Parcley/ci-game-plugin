@@ -7,7 +7,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import hudson.model.Result;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.cigame.GameDescriptor;
 import hudson.plugins.cigame.model.RuleResult;
 import hudson.tasks.test.AbstractTestResultAction;
@@ -75,10 +75,10 @@ public class IncreasingPassedTestsRuleTest {
     	// no. of new failing tests = 0 - 67
     	// no. of new skipped tested = 0 - 2963
         
-    	AbstractBuild<?, ?> previousBuild =
+    	Run<?, ?> previousBuild =
         	MavenMultiModuleUnitTestsTest.mockBuild(Result.UNSTABLE,
         			71, 67, 2963);
-        AbstractBuild<?, ?> build =
+        Run<?, ?> build =
         	MavenMultiModuleUnitTestsTest.mockBuild(Result.SUCCESS,
         			610, 0, 0);
         
@@ -92,10 +92,10 @@ public class IncreasingPassedTestsRuleTest {
         gameDescriptor.setPassedTestIncreasingPoints(10);
         
         IncreasingPassedTestsRule rule = new IncreasingPassedTestsRule();
-        AbstractBuild<?, ?> previousBuild =
+        Run<?, ?> previousBuild =
         	MavenMultiModuleUnitTestsTest.mockBuild(Result.FAILURE,
         			1, 1, 0);
-        AbstractBuild<?, ?> build =
+        Run<?, ?> build =
         	MavenMultiModuleUnitTestsTest.mockBuild(Result.UNSTABLE,
         			2, 0, 0);
         
@@ -108,10 +108,10 @@ public class IncreasingPassedTestsRuleTest {
         gameDescriptor.setPassedTestIncreasingPoints(10);
         
         IncreasingPassedTestsRule rule = new IncreasingPassedTestsRule();
-        AbstractBuild<?, ?> previousBuild =
+        Run<?, ?> previousBuild =
         	MavenMultiModuleUnitTestsTest.mockBuild(Result.UNSTABLE,
         			1, 1, 0);
-        AbstractBuild<?, ?> build =
+        Run<?, ?> build =
         	MavenMultiModuleUnitTestsTest.mockBuild(Result.FAILURE,
         			2, 0, 0);
         
@@ -121,8 +121,8 @@ public class IncreasingPassedTestsRuleTest {
 
     @Test
     public void assertIfPreviousBuildFailedResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.FAILURE);
@@ -141,8 +141,8 @@ public class IncreasingPassedTestsRuleTest {
 
     @Test
     public void assertResultIsCalculated() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
@@ -164,8 +164,8 @@ public class IncreasingPassedTestsRuleTest {
     @Bug(4449)
     @Test
     public void assertSkippedTestIsntCalculated() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);

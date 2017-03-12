@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.List;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Action;
 import hudson.model.Build;
 
@@ -27,7 +27,7 @@ public class ActionSequenceRetrieverTest {
     
     @Test 
     public void assertNullIsReturnedWithSingleBuildWhenLongerSequenceIsRequested() {
-        AbstractBuild build = mock(Build.class);
+        Run build = mock(Build.class);
         Action action = mock(Action.class);
         when(build.getActions(Action.class)).thenReturn(Arrays.asList(action));
         assertThat(new ActionSequenceRetriever(Action.class, 2).getSequence(build), is(nullValue()));
@@ -35,8 +35,8 @@ public class ActionSequenceRetrieverTest {
     
     @Test 
     public void assertNullIsReturnedWithLastBuildWithoutRequestedAction() {
-        AbstractBuild build = mock(Build.class);
-        AbstractBuild previousBuild = mock(Build.class);
+        Run build = mock(Build.class);
+        Run previousBuild = mock(Build.class);
         Action action = mock(Action.class);
         when(build.getActions(Action.class)).thenReturn(Arrays.asList(action));
         when(build.getPreviousBuild()).thenReturn(previousBuild);
@@ -46,8 +46,8 @@ public class ActionSequenceRetrieverTest {
     
     @Test 
     public void assertListIsReturnedForCompleteSequence() {
-        AbstractBuild build = mock(Build.class);
-        AbstractBuild previousBuild = mock(Build.class);
+        Run build = mock(Build.class);
+        Run previousBuild = mock(Build.class);
         Action action = mock(Action.class);
         when(build.getActions(Action.class)).thenReturn(Arrays.asList(action));
         when(build.getPreviousBuild()).thenReturn(previousBuild);

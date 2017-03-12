@@ -1,6 +1,6 @@
 package hudson.plugins.cigame.util;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.model.Run;
 
@@ -18,13 +18,13 @@ public class BuildUtil {
 	 * as for incremental Maven builds {@link Run#getResult()} sometimes returns
 	 * null which would result in a NPE in that method.
 	 */
-	public static AbstractBuild<?, ?> getPreviousBuiltBuild(AbstractBuild<?, ?> build) {
+	public static Run<?, ?> getPreviousBuiltBuild(Run<?, ?> build) {
 		
 		if (build == null) {
 			return null;
 		}
 		
-		AbstractBuild<?, ?> r = build.getPreviousBuild();
+		Run<?, ?> r = build.getPreviousBuild();
         while( r != null && ( r.getResult() == null || r.getResult() == Result.NOT_BUILT )) {
             r = r.getPreviousBuild();
         }

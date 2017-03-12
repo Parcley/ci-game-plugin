@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Result;
 import hudson.plugins.cigame.model.RuleResult;
 import hudson.plugins.violations.TypeSummary;
@@ -24,7 +24,7 @@ import org.jvnet.hudson.test.Bug;
 public class DefaultViolationRuleTest {
     @Test
     public void assertFailedBuildsIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
         when(build.getResult()).thenReturn(Result.FAILURE);
 
         DefaultViolationRule rule = new DefaultViolationRule("pmd", "PMD Violations", 100, -100);
@@ -44,8 +44,8 @@ public class DefaultViolationRuleTest {
         final ArrayList<ViolationsBuildAction> actionList = new ArrayList<ViolationsBuildAction>();
         actionList.add(new ViolationsBuildAction(null, currentReport));
 
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getResult()).thenReturn(Result.FAILURE);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getActions(ViolationsBuildAction.class)).thenReturn(actionList);
@@ -58,7 +58,7 @@ public class DefaultViolationRuleTest {
     
     @Test
     public void assertNoPreviousBuildIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(build.getPreviousBuild()).thenReturn(null);
         
@@ -70,8 +70,8 @@ public class DefaultViolationRuleTest {
     
     @Test
     public void assertThatPointsAreAwardedCorrectly() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
@@ -93,8 +93,8 @@ public class DefaultViolationRuleTest {
     
     @Test
     public void assertIfPreviousBuildFailedResultIsWorthZeroPoints() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.FAILURE);
@@ -113,8 +113,8 @@ public class DefaultViolationRuleTest {
     @Bug(3726)
     @Test
     public void assertThatNonExistingPreviousReportsAreIgnored() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
@@ -137,8 +137,8 @@ public class DefaultViolationRuleTest {
     @Bug(3726)
     @Test
     public void assertThatPreviousReportsWithErrorIsIgnored() {
-        AbstractBuild build = mock(AbstractBuild.class);
-        AbstractBuild previousBuild = mock(AbstractBuild.class);
+        Run build = mock(Run.class);
+        Run previousBuild = mock(Run.class);
         when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
